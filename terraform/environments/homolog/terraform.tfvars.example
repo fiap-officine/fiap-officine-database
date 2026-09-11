@@ -1,0 +1,14 @@
+# Região da AWS
+aws_region = "sa-east-1"
+
+# Nome do DB Subnet Group criado na VPC do repositório fiap-officine-kubernets
+db_subnet_group_name = "fiap-officine-homolog"
+
+# ID do Security Group do RDS criado no repositório fiap-officine-kubernets
+# Exemplo: rds_security_group_id = "sg-0123456789abcdef0"
+rds_security_group_id = "sg-placeholder"
+
+# Configurações do Banco
+database_name   = "officine_db"
+master_username = "dbadmin"
+instance_class  = "db.t4g.micro"
