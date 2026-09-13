@@ -47,13 +47,13 @@ locals {
 module "rds" {
   source = "../../modules/rds"
 
-  name          = "${local.project}-${local.environment}"
-  database_name = var.database_name
+  name            = "${local.project}-${local.environment}"
+  database_name   = var.database_name
   master_username = var.master_username
 
   # Free Tier: db.t4g.micro (ARM Graviton2) ou db.t3.micro (x86_64)
-  instance_class    = var.instance_class
-  allocated_storage = 20 # 20 GiB gp3 (Limite gratuito da AWS)
+  instance_class        = var.instance_class
+  allocated_storage     = 20 # 20 GiB gp3 (Limite gratuito da AWS)
   max_allocated_storage = 20
 
   # Integração com a VPC criada no repo fiap-officine-kubernets
