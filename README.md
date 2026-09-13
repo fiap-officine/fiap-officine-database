@@ -63,3 +63,28 @@ Conecte-se à instância do Kubernetes via AWS SSM e execute os scripts da pasta
 psql -h <rds_endpoint> -U dbadmin -d officine_db -f sql/01_create_tables.sql
 psql -h <rds_endpoint> -U dbadmin -d officine_db -f sql/02_seed_data.sql
 ```
+
+---
+
+## 🛰️ Recursos Ativos em Homologação (AWS sa-east-1)
+
+* **Endpoint do RDS**: `fiap-officine-homolog-rds.chmmasky8j6y.sa-east-1.rds.amazonaws.com:5432`
+* **Nome do Banco**: `officine_db`
+* **Usuário Administrador**: `dbadmin`
+* **Engine**: PostgreSQL 16.9 (AWS Graviton2 `db.t4g.micro`, Free Tier)
+* **Secret no AWS Secrets Manager**: `fiap-officine-homolog-db-credentials-292943bddde1a5688921879f8c`
+* **Clientes de Teste Pré-Cadastrados**:
+  - `Carlos Eduardo Ferreira` (CPF: `52998224725`, Status: `ATIVO`)
+  - `Mariana Souza Santos` (CPF: `11144477735`, Status: `ATIVO`)
+
+---
+
+## 🔒 Governança de Branches e CI/CD
+
+* **Branch `main` / `develop` protegida**: Commits diretos bloqueados.
+* **Uso obrigatório de Pull Requests**: Todo código requer abertura de PR com validação compulsória de `terraform fmt`, `validate` e `plan`.
+* **Deploy Automático**:
+  - Push/Merge em `develop` ➔ Deploy automático para **Homologação**.
+  - Push/Merge em `main` ➔ Deploy automático para **Produção**.
+
+
