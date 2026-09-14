@@ -75,6 +75,14 @@ Os dados gerenciados por este repositório são consumidos e manipulados atravé
 * **ReDoc**:  
   👉 [https://kai652jumh.execute-api.sa-east-1.amazonaws.com/redoc](https://kai652jumh.execute-api.sa-east-1.amazonaws.com/redoc)
 
+### 🔐 Comportamento de Acesso e Códigos de Retorno das Rotas
+
+| Tipo de Rota | Endpoints | Autorização | Comportamento e Resposta |
+| :--- | :--- | :--- | :--- |
+| **Públicas** | `/health`, `/docs`, `/openapi.json`, `/redoc` | Nenhuma (`NONE`) | `200 OK` (retorna `503 Service Unavailable` apenas em janelas breves de reinicialização ou cold start do nó EC2 Free Tier) |
+| **Autenticação** | `POST /auth/login` | Nenhuma (Valida CPF no RDS) | `200 OK` com JWT assinado pela Lambda para clientes ativos cadastrados |
+| **Protegidas** | `/api/v1/ordens-servico/*`, `/api/v1/clientes/*`, etc. | **Bearer JWT Obrigatório** | • **Sem Token ou Inválido**: `401 Unauthorized` (rejeitado pelo **Lambda Authorizer** de borda)<br>• **Com Token Válido**: `200 OK` / `201 Created` processado com persistência no PostgreSQL |
+
 ---
 
 ## 📁 Estrutura do Repositório
