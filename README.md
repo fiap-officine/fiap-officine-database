@@ -5,6 +5,27 @@ Repositório responsável pelo provisionamento, gerenciamento e automação de b
 
 ---
 
+
+## Fase 4 — instância compartilhada, bancos lógicos por serviço
+
+Este repositório continua dono da **instância** RDS PostgreSQL (Free Tier) e do
+segredo do usuário administrador no Secrets Manager. Cada microsserviço é dono
+do seu **banco lógico, usuário e schema**:
+
+| Serviço | Banco | Criado por | Schema |
+|---|---|---|---|
+| os-service | `os_db` | Job `k8s/jobs/db-bootstrap.yaml` do serviço | Alembic do serviço |
+| billing-service | `billing_db` | Job `k8s/jobs/db-bootstrap.yaml` do serviço | Alembic do serviço |
+| execution-service | — (DynamoDB) | Terraform do serviço | — |
+
+O Job roda dentro do cluster (o RDS não é público), usa as credenciais de
+admin deste repositório (`DB_ADMIN_USER`/`DB_ADMIN_PASSWORD` nos GitHub Secrets
+dos serviços) e cria usuário próprio, dono do banco, com `CONNECT` revogado de
+`PUBLIC` — nenhum serviço acessa o banco do outro.
+
+Os scripts em `sql/` são do monólito (Fase 3) e ficam apenas como referência;
+a Lambda também deixou de ler a tabela `clientes`.
+
 ## 🎯 Propósito do Repositório
 
 O **fiap-officine-database** provê a camada de persistência central e transacional para toda a oficina mecânica:
