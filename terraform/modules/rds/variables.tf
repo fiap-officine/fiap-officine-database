@@ -18,7 +18,7 @@ variable "master_username" {
 variable "engine_version" {
   description = "PostgreSQL engine version"
   type        = string
-  default     = "16.9"
+  default     = "16" # só a versão principal: o RDS usa a menor mais recente da região
 }
 
 variable "instance_class" {
