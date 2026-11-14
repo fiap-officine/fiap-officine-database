@@ -1,5 +1,5 @@
 # Região da AWS
-aws_region = "sa-east-1"
+aws_region = "us-east-2"
 
 # Rede: por padrão lida do SSM publicado pelo fiap-officine-kubernets
 # (/fiap-officine/homolog/rds/db-subnet-group-name e .../rds/security-group-id).

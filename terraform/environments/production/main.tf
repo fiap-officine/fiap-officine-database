@@ -15,7 +15,7 @@ terraform {
   # backend "s3" {
   #   bucket         = "fiap-officine-terraform-state"
   #   key            = "database/production/terraform.tfstate"
-  #   region         = "sa-east-1"
+  #   region         = "us-east-2"
   #   encrypt        = true
   # }
 }

@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS Region"
   type        = string
-  default     = "sa-east-1"
+  default     = "us-east-2"
 }
 
 variable "db_subnet_group_name" {
