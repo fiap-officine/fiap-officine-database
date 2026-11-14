@@ -5,6 +5,27 @@ Repositório responsável pelo provisionamento, gerenciamento e automação de b
 
 ---
 
+
+## Fase 4 — instância compartilhada, bancos lógicos por serviço
+
+Este repositório continua dono da **instância** RDS PostgreSQL (Free Tier) e do
+segredo do usuário administrador no Secrets Manager. Cada microsserviço é dono
+do seu **banco lógico, usuário e schema**:
+
+| Serviço | Banco | Criado por | Schema |
+|---|---|---|---|
+| os-service | `os_db` | Job `k8s/jobs/db-bootstrap.yaml` do serviço | Alembic do serviço |
+| billing-service | `billing_db` | Job `k8s/jobs/db-bootstrap.yaml` do serviço | Alembic do serviço |
+| execution-service | — (DynamoDB) | Terraform do serviço | — |
+
+O Job roda dentro do cluster (o RDS não é público), usa as credenciais de
+admin deste repositório (`DB_ADMIN_USER`/`DB_ADMIN_PASSWORD` nos GitHub Secrets
+dos serviços) e cria usuário próprio, dono do banco, com `CONNECT` revogado de
+`PUBLIC` — nenhum serviço acessa o banco do outro.
+
+Os scripts em `sql/` são do monólito (Fase 3) e ficam apenas como referência;
+a Lambda também deixou de ler a tabela `clientes`.
+
 ## 🎯 Propósito do Repositório
 
 O **fiap-officine-database** provê a camada de persistência central e transacional para toda a oficina mecânica:
@@ -69,11 +90,11 @@ graph TD
 Os dados gerenciados por este repositório são consumidos e manipulados através dos microsserviços expostos no API Gateway:
 
 * **Swagger UI (Documentação das Entidades e Endpoints)**:  
-  👉 [https://kai652jumh.execute-api.sa-east-1.amazonaws.com/docs](https://kai652jumh.execute-api.sa-east-1.amazonaws.com/docs)
+  👉 [https://kai652jumh.execute-api.us-east-2.amazonaws.com/docs](https://kai652jumh.execute-api.us-east-2.amazonaws.com/docs)
 * **OpenAPI Specification (JSON)**:  
-  👉 [https://kai652jumh.execute-api.sa-east-1.amazonaws.com/openapi.json](https://kai652jumh.execute-api.sa-east-1.amazonaws.com/openapi.json)
+  👉 [https://kai652jumh.execute-api.us-east-2.amazonaws.com/openapi.json](https://kai652jumh.execute-api.us-east-2.amazonaws.com/openapi.json)
 * **ReDoc**:  
-  👉 [https://kai652jumh.execute-api.sa-east-1.amazonaws.com/redoc](https://kai652jumh.execute-api.sa-east-1.amazonaws.com/redoc)
+  👉 [https://kai652jumh.execute-api.us-east-2.amazonaws.com/redoc](https://kai652jumh.execute-api.us-east-2.amazonaws.com/redoc)
 
 ### 🔐 Comportamento de Acesso e Códigos de Retorno das Rotas
 
@@ -125,24 +146,24 @@ aws secretsmanager get-secret-value \
   --secret-id fiap-officine-homolog-db-credentials \
   --query SecretString \
   --output text \
-  --region sa-east-1
+  --region us-east-2
 ```
 
 ### 4. Executar os Scripts DDL e Seeds Iniciais:
 Através do nó Kubernetes (conectado via AWS SSM):
 ```bash
-psql -h fiap-officine-homolog-rds.chmmasky8j6y.sa-east-1.rds.amazonaws.com \
+psql -h fiap-officine-homolog-rds.chmmasky8j6y.us-east-2.rds.amazonaws.com \
      -U dbadmin -d officine_db -f sql/01_create_tables.sql
 
-psql -h fiap-officine-homolog-rds.chmmasky8j6y.sa-east-1.rds.amazonaws.com \
+psql -h fiap-officine-homolog-rds.chmmasky8j6y.us-east-2.rds.amazonaws.com \
      -U dbadmin -d officine_db -f sql/02_seed_data.sql
 ```
 
 ---
 
-## 🛰️ Recursos Ativos em Homologação (AWS sa-east-1)
+## 🛰️ Recursos Ativos em Homologação (AWS us-east-2)
 
-* **Endpoint do RDS**: `fiap-officine-homolog-rds.chmmasky8j6y.sa-east-1.rds.amazonaws.com:5432`
+* **Endpoint do RDS**: `fiap-officine-homolog-rds.chmmasky8j6y.us-east-2.rds.amazonaws.com:5432`
 * **Nome do Banco**: `officine_db`
 * **Usuário Administrador**: `dbadmin`
 * **Engine**: PostgreSQL 16.9 (AWS Graviton2 `db.t4g.micro`, 100% Free Tier)

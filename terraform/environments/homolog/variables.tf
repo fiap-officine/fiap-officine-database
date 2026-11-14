@@ -1,19 +1,19 @@
 variable "aws_region" {
   description = "AWS Region"
   type        = string
-  default     = "sa-east-1"
+  default     = "us-east-2"
 }
 
 variable "db_subnet_group_name" {
-  description = "Nome do DB Subnet Group criado na VPC de homologação"
+  description = "DB Subnet Group (null = lido do SSM publicado pelo fiap-officine-kubernets)"
   type        = string
-  default     = "fiap-officine-homolog"
+  default     = null
 }
 
 variable "rds_security_group_id" {
-  description = "ID do Security Group do RDS criado no repositório fiap-officine-kubernets"
+  description = "Security Group do RDS (null = lido do SSM publicado pelo fiap-officine-kubernets)"
   type        = string
-  default     = "sg-homolog-rds-placeholder"
+  default     = null
 }
 
 variable "database_name" {

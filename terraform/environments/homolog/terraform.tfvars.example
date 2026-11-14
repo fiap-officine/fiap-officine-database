@@ -1,12 +1,11 @@
 # Região da AWS
-aws_region = "sa-east-1"
+aws_region = "us-east-2"
 
-# Nome do DB Subnet Group criado na VPC do repositório fiap-officine-kubernets
-db_subnet_group_name = "fiap-officine-homolog"
-
-# ID do Security Group do RDS criado no repositório fiap-officine-kubernets
-# Exemplo: rds_security_group_id = "sg-0123456789abcdef0"
-rds_security_group_id = "sg-placeholder"
+# Rede: por padrão lida do SSM publicado pelo fiap-officine-kubernets
+# (/fiap-officine/homolog/rds/db-subnet-group-name e .../rds/security-group-id).
+# Descomente só para sobrescrever:
+# db_subnet_group_name  = "fiap-officine-homolog"
+# rds_security_group_id = "sg-0123456789abcdef0"
 
 # Configurações do Banco
 database_name   = "officine_db"
