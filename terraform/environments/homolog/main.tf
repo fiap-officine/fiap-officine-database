@@ -12,13 +12,12 @@ terraform {
     }
   }
 
-  # Backend remoto — descomente para persistir no S3
-  # backend "s3" {
-  #   bucket         = "fiap-officine-terraform-state"
-  #   key            = "database/homolog/terraform.tfstate"
-  #   region         = "sa-east-1"
-  #   encrypt        = true
-  # }
+  # State remoto no S3 (configuração parcial). O workflow terraform.yml cria o
+  # bucket fiap-officine-tfstate-<account_id> se não existir e passa
+  # bucket/key/region no init. Uso local sem AWS: terraform init -backend=false
+  backend "s3" {
+    encrypt = true
+  }
 }
 
 provider "aws" {
@@ -57,8 +56,8 @@ module "rds" {
   max_allocated_storage = 20
 
   # Integração com a VPC criada no repo fiap-officine-kubernets
-  db_subnet_group_name   = var.db_subnet_group_name
-  vpc_security_group_ids = [var.rds_security_group_id]
+  db_subnet_group_name   = local.db_subnet_group_name
+  vpc_security_group_ids = [local.rds_security_group_id]
 
   # Configurações de custo reduzido para homologação
   multi_az                = false # Single-AZ para Free Tier
@@ -66,4 +65,43 @@ module "rds" {
   backup_retention_period = 1
 
   tags = local.common_tags
+}
+
+# ──────────────────────────────────────────────
+# Integração via SSM Parameter Store
+#   - lê a rede publicada pelo fiap-officine-kubernets
+#   - publica endpoint e credenciais master para os pipelines dos
+#     microsserviços (Job de bootstrap dos bancos lógicos)
+# ──────────────────────────────────────────────
+locals {
+  ssm_prefix            = "/${local.project}/${local.environment}"
+  db_subnet_group_name  = var.db_subnet_group_name != null ? var.db_subnet_group_name : data.aws_ssm_parameter.db_subnet_group_name.value
+  rds_security_group_id = var.rds_security_group_id != null ? var.rds_security_group_id : data.aws_ssm_parameter.rds_security_group_id.value
+}
+
+data "aws_ssm_parameter" "db_subnet_group_name" {
+  name = "${local.ssm_prefix}/rds/db-subnet-group-name"
+}
+
+data "aws_ssm_parameter" "rds_security_group_id" {
+  name = "${local.ssm_prefix}/rds/security-group-id"
+}
+
+resource "aws_ssm_parameter" "rds" {
+  for_each = {
+    "rds/address"         = module.rds.address
+    "rds/port"            = tostring(module.rds.port)
+    "rds/database-name"   = module.rds.database_name
+    "rds/master-username" = module.rds.master_username
+  }
+
+  name  = "${local.ssm_prefix}/${each.key}"
+  type  = "String"
+  value = each.value
+}
+
+resource "aws_ssm_parameter" "rds_master_password" {
+  name  = "${local.ssm_prefix}/rds/master-password"
+  type  = "SecureString"
+  value = module.rds.master_password
 }

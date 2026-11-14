@@ -37,3 +37,9 @@ output "secret_name" {
   description = "Nome do segredo no AWS Secrets Manager"
   value       = aws_secretsmanager_secret.db_credentials.name
 }
+
+output "master_password" {
+  description = "Senha do usuário master (publicada como SecureString no SSM pelo ambiente)"
+  value       = random_password.master_password.result
+  sensitive   = true
+}
